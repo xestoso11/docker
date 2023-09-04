@@ -8,6 +8,7 @@ openssl req -x509 -sha256 -newkey rsa:2048 -keyout xestoso11.key -out xestoso11.
 # Comands docker compose
 ## Levantar contenedores
 docker compose up -d
+<br>
 docker compose down
 
 ## Revisar contenedores que estan levantados
