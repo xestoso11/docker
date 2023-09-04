@@ -1,0 +1,25 @@
+version: '3.3'
+services:
+  mysql:
+    image: mysql:8.0.34-debian
+    container_name: bbdd_mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'xestoso11'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    networks:
+      - red_docker
+    volumes:
+      - mysql:/var/lib/mysql
+networks:
+  red_docker:
+    name: red_docker
+    external: true
+volumes:
+  mysql:

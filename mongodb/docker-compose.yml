@@ -1,0 +1,23 @@
+version: '3.1'
+services:
+  mongodb:
+    image: mongo:4.4
+    container_name: bbdd_mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - '27017:27017'
+    expose:
+      - '27017'
+    networks:
+      - red_docker
+    volumes:
+      - mongodb:/data/db
+networks:
+  red_docker:
+    name: red_docker
+    external: true
+volumes:
+  mongodb:

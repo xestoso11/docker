@@ -1,0 +1,112 @@
+version: '3.1'
+services:
+
+  prometheus:
+    image: bitnami/prometheus:2.46.0-debian-11-r31
+    container_name: prometheus
+    restart: always
+    depends_on:
+      - node-exporter
+    command: 
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.config.file=/etc/prometheus/web-config.yml"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+      - "--web.external-url=https://localhost:9090"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=15d"
+      - "--storage.tsdb.retention.size=1GB"
+
+    ports:
+      - '9090:9090'
+    networks:
+      - red_docker
+    volumes:
+#      - ./prometheus/config:/opt/bitnami/prometheus/data
+##      - ./prometheus/config/prometheus.yml:/opt/bitnami/prometheus/conf/prometheus.yml
+      - ./prometheus/config:/etc/prometheus
+      - ../certs:/etc/prometheus/certs
+      - prometheus:/prometheus
+
+  grafana:
+    image: grafana/grafana:main-ubuntu
+    container_name: grafana
+    restart: always
+    depends_on:
+      - prometheus
+    ports:
+      - '3000:3000'
+    networks:
+      - red_docker
+    volumes:
+#      - ./prometheus/config:/opt/bitnami/prometheus/data
+#      - ./grafana:/opt/grafana/
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+
+  node-exporter:
+    image: bitnami/node-exporter:1.6.1-debian-11-r40
+    container_name: node-exporter
+    restart: always
+    command: 
+     - "--web.config.file=/etc/node-exporter/web-config.yml"
+     - "--collector.filesystem.mount-points-exclude='^/(sys|proc|dev|host|etc)($$|/)'"
+    ports:
+      - '9100:9100'
+    networks:
+      - red_docker
+    volumes:
+#      - /:/rootfs
+      - ./node-exporter/security:/etc/node-exporter
+      - ../certs:/etc/node-exporter/certs
+
+
+  mongodb-exporter:
+    image: bitnami/mongodb-exporter:0.39.0-debian-11-r85
+    container_name: mongodb-exporter
+    restart: always
+    command: [
+      "--mongodb.uri=mongodb://root:password@mongodb:27017",
+      "--compatible-mode",
+      "--collect-all",
+      "--mongodb.direct-connect=false"
+      # "--log.level=error"
+
+    ] 
+    ports:
+      - '9216:9216'
+    networks:
+      - red_docker
+
+  mysql-exporter:
+    image: prom/mysqld-exporter:v0.15.0
+    container_name: mysql-exporter
+    restart: always
+    command:
+     - "--web.config.file=/etc/node-exporter/web-config.yml"
+     - "--collect.info_schema.tablestats"
+     - "--mysqld.username=root:password"
+     - "--mysqld.address=bbdd_mysql:3306"
+    ports:
+      - '9104:9104'
+    networks:
+      - red_docker
+    volumes:
+#      - /:/rootfs
+      - ./node-exporter/security:/etc/node-exporter
+      - ../certs:/etc/node-exporter/certs
+
+#  apache-exporter:
+#    image: bitnami/apache-exporter:1.0.1-debian-11-r32
+#    container_name: apache-exporter
+#    restart: always
+#    environment:
+#      - "--scrap-uri"
+#    ports:
+#      - '9104:9104
+networks:
+  red_docker:
+    name: red_docker
+volumes:
+  grafana_data:
+  prometheus:
