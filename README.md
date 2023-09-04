@@ -22,6 +22,7 @@ docker logs -f "container_name"
 
 ## Terminal de contenedor como root
 docker exec -it -u 0 "container_name" /bin/bash
+<br>
 docker exec -it -u 0 "container_name" /bin/sh
 
 ## Listar todas las networks
