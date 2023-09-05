@@ -7,8 +7,9 @@ services:
     restart: always
     depends_on:
       - node-exporter
+      - apache-exporter
+      - mysql-exporter
     command: 
-      - "--config.file=/etc/prometheus/prometheus.yml"
       - "--web.config.file=/etc/prometheus/web-config.yml"
       - "--web.console.libraries=/usr/share/prometheus/console_libraries"
       - "--web.console.templates=/usr/share/prometheus/consoles"
@@ -16,7 +17,7 @@ services:
       - "--storage.tsdb.path=/prometheus"
       - "--storage.tsdb.retention.time=15d"
       - "--storage.tsdb.retention.size=1GB"
-
+      - "--config.file=/etc/prometheus/prometheus.yml"
     ports:
       - '9090:9090'
     networks:
@@ -65,14 +66,13 @@ services:
     image: bitnami/mongodb-exporter:0.39.0-debian-11-r85
     container_name: mongodb-exporter
     restart: always
-    command: [
-      "--mongodb.uri=mongodb://root:password@mongodb:27017",
-      "--compatible-mode",
-      "--collect-all",
-      "--mongodb.direct-connect=false"
+    command: 
+      - "--mongodb.uri=mongodb://root:password@bbdd_mongodb:27017"
+      - "--compatible-mode"
+      - "--collect-all"
+      - "--mongodb.direct-connect=false"
       # "--log.level=error"
 
-    ] 
     ports:
       - '9216:9216'
     networks:
@@ -92,18 +92,24 @@ services:
     networks:
       - red_docker
     volumes:
-#      - /:/rootfs
       - ./node-exporter/security:/etc/node-exporter
       - ../certs:/etc/node-exporter/certs
 
-#  apache-exporter:
-#    image: bitnami/apache-exporter:1.0.1-debian-11-r32
-#    container_name: apache-exporter
-#    restart: always
-#    environment:
-#      - "--scrap-uri"
-#    ports:
-#      - '9104:9104
+  apache-exporter:
+    image: bitnami/apache-exporter:1.0.1-debian-11-r32
+    container_name: apache-exporter
+    restart: always
+    command:
+       - "--web.config.file=/etc/node-exporter/web-config.yml"
+       - "--scrape_uri=http://apache2:80/server-status?auto"
+    ports:
+      - '9117:9117'
+    networks:
+      - red_docker
+    volumes:
+      - ./node-exporter/security:/etc/node-exporter
+      - ../certs:/etc/node-exporter/certs
+
 networks:
   red_docker:
     name: red_docker

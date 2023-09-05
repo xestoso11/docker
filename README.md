@@ -4,6 +4,8 @@ https://bcrypt-generator.com/
 
 # Generar certificados autofirmados
 openssl req -x509 -sha256 -newkey rsa:2048 -keyout xestoso11.key -out xestoso11.crt -days 1024 -nodes
+<br>
+Los certificados tienen que estar en un carpeta que se llama certs, a la altura de el resto de carpetas.
 
 # Comands docker compose
 ## Levantar contenedores
@@ -33,3 +35,6 @@ docker network inspect "network_name"
 
 ## Eliminar network
 ocker network rm "network_name"
+
+## Paquetes para hacer pruebas de conectividad basicas dentro de un contenedor 
+apt update && apt install curl && apt install iputils-ping && apt-get install telnet
