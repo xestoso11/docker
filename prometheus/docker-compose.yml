@@ -35,6 +35,14 @@ services:
     restart: always
     depends_on:
       - prometheus
+    environment:
+      - VIRTUAL_PROTO=https
+      - VIRTUAL_PORT=3000
+      - GF_SERVER_CERT_FILE=/etc/letsencrypt/certs/xestoso11.crt
+      - GF_SERVER_CERT_KEY=/etc/letsencrypt/certs/xestoso11.key
+      - GF_SERVER_PROTOCOL=https
+      - GF_SECURITY_ADMIN_USER=admin # adjust to create Grafana admin account
+      - GF_SECURITY_ADMIN_PASSWORD=admin # adjust to set Grafana admin password
     ports:
       - '3000:3000'
     networks:
@@ -44,6 +52,7 @@ services:
 #      - ./grafana:/opt/grafana/
       - ./grafana/provisioning:/etc/grafana/provisioning
       - grafana_data:/var/lib/grafana
+      - ../certs:/etc/letsencrypt/certs
 
   node-exporter:
     image: bitnami/node-exporter:1.6.1-debian-11-r40

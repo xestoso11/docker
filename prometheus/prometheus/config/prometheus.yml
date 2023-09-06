@@ -47,6 +47,13 @@ scrape_configs:
 
 ##Grafana
   - job_name: "grafana"
+    scheme: https
+    basic_auth:
+      username: admin
+      password: admin
+    tls_config:
+#      ca_file: node_exporter.crt
+      insecure_skip_verify: true
     static_configs:
       - targets: ["grafana:3000"]
 
