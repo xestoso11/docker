@@ -67,4 +67,4 @@ docker volume rm "volumen_name"
 docker volume prune
 
 ## Paquetes para hacer pruebas de conectividad basicas dentro de un contenedor 
-apt update && apt install curl && apt install iputils-ping && apt-get install telnet
+apt update && apt install curl -y && apt install iputils-ping -y && apt-get install telnet -y

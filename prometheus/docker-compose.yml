@@ -13,7 +13,7 @@ services:
       - "--web.config.file=/etc/prometheus/web-config.yml"
       - "--web.console.libraries=/usr/share/prometheus/console_libraries"
       - "--web.console.templates=/usr/share/prometheus/consoles"
-      - "--web.external-url=https://localhost:9090"
+      - "--web.external-url=https://localhost:9090/prometheus"
       - "--storage.tsdb.path=/prometheus"
       - "--storage.tsdb.retention.time=15d"
       - "--storage.tsdb.retention.size=1GB"
@@ -23,8 +23,6 @@ services:
     networks:
       - red_docker
     volumes:
-#      - ./prometheus/config:/opt/bitnami/prometheus/data
-##      - ./prometheus/config/prometheus.yml:/opt/bitnami/prometheus/conf/prometheus.yml
       - ./prometheus/config:/etc/prometheus
       - ../certs:/etc/prometheus/certs
       - prometheus:/prometheus
@@ -41,15 +39,16 @@ services:
       - GF_SERVER_CERT_FILE=/etc/letsencrypt/certs/xestoso11.crt
       - GF_SERVER_CERT_KEY=/etc/letsencrypt/certs/xestoso11.key
       - GF_SERVER_PROTOCOL=https
-      - GF_SECURITY_ADMIN_USER=admin # adjust to create Grafana admin account
-      - GF_SECURITY_ADMIN_PASSWORD=admin # adjust to set Grafana admin password
+      - GF_SERVER_HTTP_PORT=3000
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SERVER_ROOT_URL=https://localhost:3000/grafana
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
     ports:
       - '3000:3000'
     networks:
       - red_docker
     volumes:
-#      - ./prometheus/config:/opt/bitnami/prometheus/data
-#      - ./grafana:/opt/grafana/
       - ./grafana/provisioning:/etc/grafana/provisioning
       - grafana_data:/var/lib/grafana
       - ../certs:/etc/letsencrypt/certs
@@ -118,6 +117,20 @@ services:
     volumes:
       - ./node-exporter/security:/etc/node-exporter
       - ../certs:/etc/node-exporter/certs
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    restart: always
+    ports:
+    - 8081:8080
+    networks:
+      - red_docker
+    volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
 
 networks:
   red_docker:

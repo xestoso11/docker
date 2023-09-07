@@ -13,22 +13,6 @@ rule_files:
   # - "second_rules.yml"
 
 
-#scrape_configs:
-#  - job_name: 'prometheus'
-#    scheme: https
-#    basic_auth:
-#      username: admin
-#      password: admin
-#    tls_config:
-#      ca_file: node_exporter.crt
-#      insecure_skip_verify: true
-#    metrics_path: 'metrics'
-#    static_configs:
-#      - targets: ["localhost:9090"]
-#        labels:
-#          servidor: algo
-#          filtro: algo2
-
 scrape_configs:
   - job_name: 'prometheus'
     scheme: https
@@ -38,7 +22,7 @@ scrape_configs:
     tls_config:
 #      ca_file: node_exporter.crt
       insecure_skip_verify: true
-    metrics_path: 'metrics'
+    metrics_path: 'prometheus/metrics'
     static_configs:
       - targets: ["localhost:9090"]
         labels:
@@ -52,8 +36,8 @@ scrape_configs:
       username: admin
       password: admin
     tls_config:
-#      ca_file: node_exporter.crt
       insecure_skip_verify: true
+    metrics_path: 'grafana/metrics'
     static_configs:
       - targets: ["grafana:3000"]
 
@@ -102,3 +86,10 @@ scrape_configs:
         labels:
           servidor: xestoso11
           filtro: servidor_web_apache
+
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ["cadvisor:8080"]
+        labels:
+          servidor: xestoso11
+          filtro: docker_metrics
