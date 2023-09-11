@@ -1,6 +1,6 @@
 version: '3.3'
 services:
-  mysql:
+  apache2:
     image: httpd:2.4.57-bookworm
     container_name: apache2
     restart: always
@@ -10,8 +10,9 @@ services:
     networks:
       - red_docker
     volumes:
-    - ./web-side:/usr/local//apache2/htdocs
-    - ./config/httpd.conf:/usr/local//apache2/conf/httpd.conf
+    - ./web-side:/usr/local/apache2/htdocs
+    - ./config/httpd.conf:/usr/local/apache2/conf/httpd.conf
+    - ../certs:/usr/local/apache2/certs
 
 networks:
   red_docker:
