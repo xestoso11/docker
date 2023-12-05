@@ -4,6 +4,7 @@ services:
     image: mongo:4.4
     container_name: bbdd_mongodb
     restart: always
+    user: root
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: password
@@ -15,6 +16,21 @@ services:
       - red_docker
     volumes:
       - mongodb:/data/db
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    container_name: mongo-express
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: password
+      ME_CONFIG_MONGODB_URL: mongodb://root:password@bbdd_mongodb:27017/
+    ports:
+      - 8085:8081
+    networks:
+      - red_docker
+
+
 networks:
   red_docker:
     name: red_docker

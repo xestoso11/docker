@@ -1,0 +1,58 @@
+global:
+  resolve_timeout: 5m
+  slack_api_url: 'url_slak'
+
+route:
+  group_by: ['severity']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 1h
+  receiver: 'prometheus-msteams'
+  routes:
+  - receiver: 'prometheus-msteams'
+    continue: true
+  - receiver: 'discor-alerts'
+    continue: true
+  - receiver: 'slack-alerts'
+    continue: true
+
+receivers:
+  - name: 'prometheus-msteams'
+    webhook_configs:
+      - url: 'http://prometheus-msteams:2000/alertmanager'
+        send_resolved: true
+  - name: 'slack-alerts'
+    slack_configs:
+      - channel: '#prometheus'
+        send_resolved: true
+  - name: 'discor-alerts'
+    discord_configs:
+      - webhook_url: 'url_discord'
+        send_resolved: true
+
+
+# Whether to notify about resolved alerts.
+# [ send_resolved: <boolean> | default = true ]
+
+# # The Discord webhook URL.
+# webhook_url: <secret>
+
+# # Message title template.
+# [ title: <tmpl_string> | default = '{{ template "discord.default.title" . }}' ]
+
+# # Message body template.
+# [ message: <tmpl_string> | default = '{{ template "discord.default.message" . }}' ]
+
+# # The HTTP client's configuration.
+# [ http_config: <http_config> | default = global.http_config ]
+
+
+# templates:
+#   - '/etc/alertmanager/templates/email.html'
+
+# inhibit_rules:
+#   - source_match:
+#       severity: 'critical'
+#     target_match:
+#       severity: 'warning'
+#     equal: ['alertname', 'dev', 'instance']

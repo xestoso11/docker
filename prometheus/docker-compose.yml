@@ -9,6 +9,8 @@ services:
       - node-exporter
       - apache-exporter
       - mysql-exporter
+      - cadvisor
+      - mongodb-exporter
     command: 
       - "--web.config.file=/etc/prometheus/web-config.yml"
       - "--web.console.libraries=/usr/share/prometheus/console_libraries"
@@ -54,7 +56,7 @@ services:
       - ../certs:/etc/letsencrypt/certs
 
   node-exporter:
-    image: bitnami/node-exporter:1.6.1-debian-11-r40
+    image: prom/node-exporter:v1.7.0
     container_name: node-exporter
     restart: always
     command: 
@@ -66,21 +68,19 @@ services:
       - red_docker
     volumes:
 #      - /:/rootfs
-      - ./node-exporter/security:/etc/node-exporter
+      - ./ssl/:/etc/node-exporter
       - ../certs:/etc/node-exporter/certs
-
 
   mongodb-exporter:
     image: bitnami/mongodb-exporter:0.39.0-debian-11-r85
     container_name: mongodb-exporter
     restart: always
     command: 
-      - "--mongodb.uri=mongodb://root:password@bbdd_mongodb:27017"
+      - "--mongodb.uri=mongodb://root:password@bbdd_mongodb:27017/"
       - "--compatible-mode"
       - "--collect-all"
       - "--mongodb.direct-connect=false"
-      # "--log.level=error"
-
+      #- "--log.level=debug"
     ports:
       - '9216:9216'
     networks:
@@ -91,7 +91,7 @@ services:
     container_name: mysql-exporter
     restart: always
     command:
-     - "--web.config.file=/etc/node-exporter/web-config.yml"
+     - "--web.config.file=/etc/mysql-exporter/web-config.yml"
      - "--collect.info_schema.tablestats"
      - "--mysqld.username=root:password"
      - "--mysqld.address=bbdd_mysql:3306"
@@ -100,15 +100,15 @@ services:
     networks:
       - red_docker
     volumes:
-      - ./node-exporter/security:/etc/node-exporter
-      - ../certs:/etc/node-exporter/certs
+      - ./ssl/:/etc/mysql-exporter
+      - ../certs:/etc/mysql-exporter/certs
 
   apache-exporter:
     image: bitnami/apache-exporter:1.0.1-debian-11-r32
     container_name: apache-exporter
     restart: always
     command:
-       - "--web.config.file=/etc/node-exporter/web-config.yml"
+       - "--web.config.file=/etc/apache-exporter/web-config.yml"
        - "--scrape_uri=https://apache2:80/server-status?auto"
        - "--insecure"
     ports:
@@ -116,8 +116,8 @@ services:
     networks:
       - red_docker
     volumes:
-      - ./node-exporter/security:/etc/node-exporter
-      - ../certs:/etc/node-exporter/certs
+      - ./ssl/:/etc/apache-exporter
+      - ../certs:/etc/apache-exporter/certs
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
@@ -132,6 +132,55 @@ services:
     - /var/run:/var/run:rw
     - /sys:/sys:ro
     - /var/lib/docker/:/var/lib/docker:ro
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.24.0
+    container_name: blackbox
+    restart: always
+    command: 
+      - "--config.file=/etc/blackbox/blackbox.yml"
+    ports:
+      - 9115:9115
+    networks:
+      - red_docker
+    volumes:
+      - ./blackbox/blackbox.yml:/etc/blackbox/blackbox.yml
+
+  alertmanager:
+    image: prom/alertmanager:v0.26.0
+    container_name: alertmanager
+    restart: always
+    depends_on:
+      - prometheus
+    command: 
+      - "--config.file=/etc/alertmanager/config.yml"
+      - "--storage.path=/alertmanager"
+      - "--web.external-url=http://alertmanager:9093/alertmanager"
+      - "--web.config.file=/etc/alertmanager/ssl/web-config.yml"
+    ports:
+      - 9093:9093
+    networks:
+      - red_docker
+    volumes:
+      - ./alertmanager/:/etc/alertmanager/
+      - ./ssl/:/etc/alertmanager/ssl
+      - ../certs:/etc/alertmanager/ssl/certs
+
+  prometheus-msteams:
+    image: bzon/prometheus-msteams:v1.3.0
+    container_name: prometheus-msteams
+    restart: always
+    depends_on:
+      - alertmanager
+    environment:
+      - TEAMS_INCOMING_WEBHOOK_URL="${url_msteams}"
+      - TEAMS_REQUEST_URI=alertmanager
+    ports:
+      - 2000:2000
+    networks:
+      - red_docker
+    volumes:
+      - ./prometheus-msteams/mesage-card.tmpl:/mesage-card.tmpl
 
 networks:
   red_docker:
