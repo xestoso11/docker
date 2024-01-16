@@ -17,7 +17,7 @@ docker compose up -d
 ```
 docker compose down
 ```
-## Revisar contenedores que estan levantados
+## Revisar contenedores que están levantados
 ```
 docker ps
 ```
@@ -66,7 +66,7 @@ docker network inspect "network_name"
 ```
 docker network rm "network_name"
 ```
-## Listar imagenes
+## Listar imágenes
 ```
 docker image ls
 ```
@@ -76,11 +76,11 @@ docker image ls
 docker images
 ```
 
-## Borra imagenes
+## Borrar imágenes
 ```
 docker image rm "imagen_name"
 ```
-## Borrar imagenes que no estan en uso
+## Borrar imágenes que no están en uso
 ```
 docker image prune
 ```
@@ -88,11 +88,11 @@ docker image prune
 ```
 docker volume ls
 ```
-## Borra volumenes
+## Borrar volúmenes
 ```
 docker volume rm "volumen_name"
 ```
-## Borrar volumenes que no estan en uso
+## Borrar volúmenes que no están en uso
 ```
 docker volume prune
 ```
@@ -101,8 +101,8 @@ docker volume prune
 apt update && apt install curl -y && apt install iputils-ping -y && apt-get install telnet -y
 ```
 ## Ejecutar comandos desde docker compose en el contenedor
-En el siguiente ejemplo podemos ver como introducimos el user, para poder ejecutar los comandos como root y además con esto despues siempre que entremos a la teminal del contenedor entraremos como root aunque no se lo indiquemos,
-y con command podemos ejecutar todos los comandos que podriamos ejecutar desde una shell de bash.
+En el siguiente ejemplo podemos ver cómo introducimos el user, para poder ejecutar los comandos como root y además con esto después siempre que entremos a la terminal del contenedor entramos como root aunque no se lo indiquemos,
+y con command podemos ejecutar todos los comandos que podremos ejecutar desde una shell de bash.
 ```
 version: '3'
 services:
@@ -110,4 +110,4 @@ services:
     user: root
     command: /bin/bash -c "apt update && apt install curl -y && apt install iputils-ping -y && apt-get install telnet -y"
 ```
-Tambien se puede hacer desde un Dockerfile como está hecho con el Opensearch.
+También se puede hacer desde un Dockerfile como está hecho con el Opensearch.
